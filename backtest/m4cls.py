@@ -6,10 +6,12 @@ from datetime import datetime
 from hierarchical_extremes import HierarchicalExtremes
 
 # Backtest Configuration
-CSV_PATH = "Volatility_75_Index_M15_2025-06-19_2025-07-19.csv"
+CSV_PATH = "Volatility_75_Index_M15_2025-07-12_2025-07-19.csv"
 ATR_LOOKBACK = 168
 LEVELS = 4
-ENTRY_THRESHOLD = 100.0
+
+# higer Values are preferable on low timeframes
+ENTRY_THRESHOLD = 50 #Number of entries, Higher values, more entries
 STOP_LOSS = 100.0
 TAKE_PROFIT_MULTIPLIER = 1.5
 LOT_SIZE = 0.011
