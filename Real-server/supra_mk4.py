@@ -10,11 +10,11 @@ SYMBOL = "Volatility 75 Index"
 TIMEFRAME = mt5.TIMEFRAME_M15
 ATR_LOOKBACK = 168
 LEVELS = 3
-ENTRY_THRESHOLD = 100
-STOP_LOSS = 100.0
-TAKE_PROFIT_MULTIPLIER = 1.7
+ENTRY_THRESHOLD = 1000
+STOP_LOSS = 200.0
+TAKE_PROFIT_MULTIPLIER = 1.3
 LOT_SIZE = 0.011
-POINT_VALUE = 1.9
+POINT_VALUE = 1.5
 INITIAL_BALANCE = 100.0
 MIN_BARS_SINCE_LEVEL = 4
 WARMUP_BARS = ATR_LOOKBACK * 2
@@ -136,6 +136,14 @@ def place_trade(symbol, direction, level_price):
     tp_price = entry_price + (STOP_LOSS * TAKE_PROFIT_MULTIPLIER) if direction == 'buy' \
                else entry_price - (STOP_LOSS * TAKE_PROFIT_MULTIPLIER)
     
+
+    #trying to fix invalid stops
+    symbol_info = mt5.symbol_info(symbol)
+    if symbol_info:
+        digits = symbol_info.digits
+        sl_price = round(sl_price, digits)
+        tp_price = round(tp_price, digits)
+    
     logger.info(f"Calculated SL: {sl_price:.2f}, TP: {tp_price:.2f}, Entry: {entry_price:.2f}")
     
     request = {
@@ -146,7 +154,7 @@ def place_trade(symbol, direction, level_price):
         "price": entry_price,
         "sl": sl_price,
         "tp": tp_price,
-        "deviation": 20,
+        "deviation": 100,
         "magic": 2025,
         "comment": f"Retest {level_price}",
         "type_time": mt5.ORDER_TIME_GTC,
@@ -201,6 +209,7 @@ def run_live_trading():
     
 
     logger.info(f"Warming up model with {WARMUP_BARS} bars...")
+    
     for i, bar in enumerate(bars):
         he.update(i, hist_data.index, hist_data['high'].values, 
                  hist_data['low'].values, hist_data['close'].values)
